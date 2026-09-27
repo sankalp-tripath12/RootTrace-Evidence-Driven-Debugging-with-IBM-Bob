@@ -33,23 +33,101 @@
 
 ## 3. EVIDENCE
 
-| ID | Type | Source | Location | Observation | Relevance |
-|---|---|---|---|---|---|
-| E1 | Runtime output | `npm test` | `tests/checkout.test.js:33` | `Error: Discount rate must be between 0 and 1`; 2 pass, 1 fail | Confirms failure is reproducible |
-| E2 | Stack trace | `npm test` | `discount.js:12 ← pricing.js:16 ← checkout.test.js:33` | Full call chain identifies the throw site | Identifies failure path |
-| E3 | Runtime output | `npm start` | `checkout.js:18 → pricing.js:16 → discount.js:12` | Same error and exit code 1 | Confirms application path also fails |
-| E4 | Runtime experiment | `applyDiscount(150, 20)` | `src/discount.js` | Integer `20` throws; decimal `0.20` returns `120` | Shows expected input format |
-| E5 | Runtime experiment | `calculateSubtotal(items)` | `src/pricing.js` | Returns `150` | Shows subtotal calculation works |
-| E6 | Runtime experiment | `calculateFinalPrice(items, 0)` | `src/pricing.js` | Returns `150` | Shows zero-discount path works |
-| E7 | Runtime experiment | `calculateFinalPrice(items, 0.20)` | `src/pricing.js` | Returns `120` | Shows decimal input works |
-| E8 | Source code | `src/discount.js:5–8` | `applyDiscount` JSDoc | `discountRate` is expected to be a decimal; 20% → 0.20 | Defines required input contract |
-| E9 | Source code | `src/pricing.js:10` | `calculateFinalPrice` | Parameter is named `discountPercent` | Indicates percentage-based API |
-| E10 | Source code | `src/checkout.js:16` | `discountPercent = 20` | Caller supplies integer 20 | Confirms percentage-based input |
-| E11 | Test contract | `tests/checkout.test.js:33` | `calculateFinalPrice(items, 20)` | Test expects result `120` | Establishes public API contract |
-| E12 | Source comment | `src/pricing.js:13–15` | BUG comment | Notes that `discountPercent` is 20 while `applyDiscount` expects 0.20 | Corroborates other evidence |
+### E1 — Runtime Output
 
----
+- **Type:** Runtime output
+- **Source:** `npm test`
+- **Location:** `tests/checkout.test.js:33`
+- **Observation:** `Error: Discount rate must be between 0 and 1`; 2 tests pass and 1 fails.
+- **Relevance:** Confirms the failure is reproducible.
 
+### E2 — Stack Trace
+
+- **Type:** Stack trace
+- **Source:** `npm test`
+- **Location:** `discount.js:12 ← pricing.js:16 ← checkout.test.js:33`
+- **Observation:** The full call chain identifies the throw site.
+- **Relevance:** Identifies the failure path.
+
+### E3 — Application Runtime
+
+- **Type:** Runtime output
+- **Source:** `npm start`
+- **Location:** `checkout.js:18 → pricing.js:16 → discount.js:12`
+- **Observation:** Same error occurs and the process exits with code 1.
+- **Relevance:** Confirms the application path also fails.
+
+### E4 — Input Boundary Experiment
+
+- **Type:** Runtime experiment
+- **Source:** `applyDiscount(150, 20)`
+- **Location:** `src/discount.js`
+- **Observation:** Integer `20` throws; decimal `0.20` returns `120`.
+- **Relevance:** Shows the expected input format.
+
+### E5 — Subtotal Experiment
+
+- **Type:** Runtime experiment
+- **Source:** `calculateSubtotal(items)`
+- **Location:** `src/pricing.js`
+- **Observation:** Returns `150`.
+- **Relevance:** Shows subtotal calculation works.
+
+### E6 — Zero Discount Experiment
+
+- **Type:** Runtime experiment
+- **Source:** `calculateFinalPrice(items, 0)`
+- **Location:** `src/pricing.js`
+- **Observation:** Returns `150`.
+- **Relevance:** Shows the zero-discount path works.
+
+### E7 — Decimal Input Experiment
+
+- **Type:** Runtime experiment
+- **Source:** `calculateFinalPrice(items, 0.20)`
+- **Location:** `src/pricing.js`
+- **Observation:** Returns `120`.
+- **Relevance:** Shows decimal input works.
+
+### E8 — Function Contract
+
+- **Type:** Source code
+- **Source:** `src/discount.js:5–8`
+- **Location:** `applyDiscount` JSDoc
+- **Observation:** `discountRate` is expected to be a decimal; 20% → 0.20.
+- **Relevance:** Defines the required input contract.
+
+### E9 — API Naming
+
+- **Type:** Source code
+- **Source:** `src/pricing.js:10`
+- **Location:** `calculateFinalPrice`
+- **Observation:** Parameter is named `discountPercent`.
+- **Relevance:** Indicates percentage-based input.
+
+### E10 — Caller Input
+
+- **Type:** Source code
+- **Source:** `src/checkout.js:16`
+- **Location:** `discountPercent = 20`
+- **Observation:** Caller supplies integer `20`.
+- **Relevance:** Confirms percentage-based input.
+
+### E11 — Test Contract
+
+- **Type:** Test contract
+- **Source:** `tests/checkout.test.js:33`
+- **Location:** `calculateFinalPrice(items, 20)`
+- **Observation:** Test expects result `120`.
+- **Relevance:** Establishes the public API contract.
+
+### E12 — Source Comment
+
+- **Type:** Source comment
+- **Source:** `src/pricing.js:13–15`
+- **Location:** BUG comment
+- **Observation:** Notes that `discountPercent` is `20` while `applyDiscount` expects `0.20`.
+- **Relevance:** Corroborates the other evidence.
 ## 4. HYPOTHESES
 
 ### Hypothesis A — Missing `/ 100` conversion
